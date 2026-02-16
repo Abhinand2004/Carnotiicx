@@ -4,19 +4,19 @@ const categories = [
   {
     title: "Performance Cars",
     type: "car",
-    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1470&auto=format&fit=crop",
+    image: "/carimg.jpeg",
     description: "High-octane supercars and track-ready tuners.",
   },
   {
     title: "Super Bikes",
     type: "bike",
-    image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1470&auto=format&fit=crop",
+    image: "/bikeimg.jpeg",
     description: "Precision handling and raw two-wheeled power.",
   },
   {
     title: "F1 Heritage",
     type: "f1",
-    image: "https://images.unsplash.com/photo-1533139502658-0198f920d8e8?q=80&w=1470&auto=format&fit=crop",
+    image: "/f1img.jpeg",
     description: "Peak engineering from the pinnacle of motorsport.",
   },
 ];

@@ -96,10 +96,7 @@ export default function ProductInfo({ product }: { product: any }) {
                             <button
                                 key={size}
                                 onClick={() => setSelectedSize(size)}
-                                disabled={size === "XXL"}
-                                className={`h-12 border rounded text-sm font-bold transition-all ${size === "XXL"
-                                    ? "border-white/5 bg-surface-dark text-gray-600 cursor-not-allowed opacity-50"
-                                    : selectedSize === size
+                                className={`h-12 border rounded text-sm font-bold transition-all ${selectedSize === size
                                         ? "border-2 border-primary bg-primary/10 text-white shadow-[0_0_15px_rgba(234,42,51,0.3)]"
                                         : "border-white/10 bg-surface-dark hover:border-gray-500 text-gray-300"
                                     }`}

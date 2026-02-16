@@ -45,12 +45,12 @@ export default function Hero() {
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tighter uppercase italic">
-            Built for{" "}
+            Where{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-red-400">
-              Speed.
+              FASHION MEETS .
             </span>
             <br />
-            Worn for Style.
+            PERFORMANCE.
           </h1>
 
           <p className="text-gray-300 text-lg md:text-xl font-light max-w-xl border-l-4 border-gray-700 pl-4 py-1">
