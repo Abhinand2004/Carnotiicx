@@ -40,7 +40,7 @@ export default function Hero() {
           <div className="flex items-center gap-2">
             <div className="h-[2px] w-12 bg-primary" />
             <span className="text-primary font-bold tracking-widest uppercase text-sm">
-              Est. 2024 /// Motorsport Culture
+              Est. 2025 /// Motorsport Culture
             </span>
           </div>
 
