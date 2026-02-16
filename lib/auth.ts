@@ -18,17 +18,28 @@ export const signToken = (payload: any) => {
 export const verifyToken = (token: string): DecodedToken | null => {
     try {
         return jwt.verify(token, JWT_SECRET) as DecodedToken;
-    } catch (error) {
+    } catch (error: any) {
+        console.error('JWT Verification Error:', {
+            message: error.message,
+            token_provided: !!token,
+            secret_exists: !!JWT_SECRET
+        });
         return null;
     }
 };
 
-export const getAuthUser = (req: NextRequest) => {
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+export const getAuthUser = (req: NextRequest): DecodedToken | null => {
+    try {
+        const authHeader = req.headers.get('authorization');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            console.warn('Missing or malformed Authorization header');
+            return null;
+        }
+
+        const token = authHeader.split(' ')[1];
+        return verifyToken(token);
+    } catch (error) {
+        console.error('getAuthUser Error:', error);
         return null;
     }
-
-    const token = authHeader.split(' ')[1];
-    return verifyToken(token);
 };

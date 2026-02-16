@@ -2,6 +2,7 @@ import NavLinks from "./NavLinks";
 import SearchBar from "./SearchBar";
 import NavActions from "./NavActions";
 import MobileNav from "./MobileNav";
+import MusicToggle from "./MusicToggle";
 
 export default function Navbar() {
   return (
@@ -19,6 +20,7 @@ export default function Navbar() {
 
       <div className="flex items-center gap-3 lg:gap-6">
         <SearchBar />
+        <MusicToggle />
         <NavActions />
         <MobileNav />
       </div>

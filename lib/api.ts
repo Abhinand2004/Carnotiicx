@@ -90,7 +90,7 @@ export const api = {
 // Admin API functions
 export const adminApi = {
   // Login
-  login: async (username: string, password: string): Promise<LoginResponse> => {
+  login: async (username: string, password: string): Promise<LoginResponse & { status: number }> => {
     const response = await fetch(`${API_BASE_URL}/admin/login`, {
       method: 'POST',
       headers: {
@@ -98,21 +98,23 @@ export const adminApi = {
       },
       body: JSON.stringify({ username, password }),
     });
-    return response.json();
+    const data = await response.json();
+    return { ...data, status: response.status };
   },
 
   // Get all products (admin)
-  getProducts: async (token: string): Promise<{ success: boolean; data: Product[] }> => {
+  getProducts: async (token: string): Promise<{ success: boolean; data: Product[]; status: number; message?: string }> => {
     const response = await fetch(`${API_BASE_URL}/admin/products`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
     });
-    return response.json();
+    const data = await response.json();
+    return { ...data, status: response.status };
   },
 
   // Create product
-  createProduct: async (token: string, formData: FormData): Promise<{ success: boolean; data: Product; message: string }> => {
+  createProduct: async (token: string, formData: FormData): Promise<{ success: boolean; data: Product; message: string; status: number }> => {
     const response = await fetch(`${API_BASE_URL}/admin/products`, {
       method: 'POST',
       headers: {
@@ -120,11 +122,12 @@ export const adminApi = {
       },
       body: formData,
     });
-    return response.json();
+    const data = await response.json();
+    return { ...data, status: response.status };
   },
 
   // Update product
-  updateProduct: async (token: string, id: string, formData: FormData): Promise<{ success: boolean; data: Product; message: string }> => {
+  updateProduct: async (token: string, id: string, formData: FormData): Promise<{ success: boolean; data: Product; message: string; status: number }> => {
     const response = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
       method: 'PUT',
       headers: {
@@ -132,25 +135,63 @@ export const adminApi = {
       },
       body: formData,
     });
-    return response.json();
+    const data = await response.json();
+    return { ...data, status: response.status };
   },
 
   // Delete product
-  deleteProduct: async (token: string, id: string): Promise<{ success: boolean; message: string }> => {
+  deleteProduct: async (token: string, id: string): Promise<{ success: boolean; message: string; status: number }> => {
     const response = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
       },
     });
-    return response.json();
+    const data = await response.json();
+    return { ...data, status: response.status };
+  },
+
+  // Get all music (admin)
+  getMusic: async (token: string): Promise<{ success: boolean; data: any[]; status: number }> => {
+    const response = await fetch(`${API_BASE_URL}/admin/music`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    return { ...data, status: response.status };
+  },
+
+  // Upload music
+  uploadMusic: async (token: string, formData: FormData): Promise<{ success: boolean; data: any; message: string; status: number }> => {
+    const response = await fetch(`${API_BASE_URL}/admin/music`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const data = await response.json();
+    return { ...data, status: response.status };
+  },
+
+  // Delete music
+  deleteMusic: async (token: string, id: string): Promise<{ success: boolean; message: string; status: number }> => {
+    const response = await fetch(`${API_BASE_URL}/admin/music/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    return { ...data, status: response.status };
   },
 };
 
 // User Auth API functions
 export const authApi = {
   // Login
-  login: async (credentials: any): Promise<{ success: boolean; message: string; data?: any; errors?: any }> => {
+  login: async (credentials: any): Promise<{ success: boolean; message: string; data?: any; errors?: any; status: number }> => {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
@@ -158,11 +199,12 @@ export const authApi = {
       },
       body: JSON.stringify(credentials),
     });
-    return response.json();
+    const data = await response.json();
+    return { ...data, status: response.status };
   },
 
   // Register
-  register: async (userData: any): Promise<{ success: boolean; message: string; data?: any; errors?: any }> => {
+  register: async (userData: any): Promise<{ success: boolean; message: string; data?: any; errors?: any; status: number }> => {
     const isFormData = userData instanceof FormData;
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
@@ -171,22 +213,24 @@ export const authApi = {
       },
       body: isFormData ? userData : JSON.stringify(userData),
     });
-    return response.json();
+    const data = await response.json();
+    return { ...data, status: response.status };
   },
 
   // Get Profile
-  getProfile: async (token: string): Promise<{ success: boolean; data?: any; message?: string }> => {
+  getProfile: async (token: string): Promise<{ success: boolean; data?: any; message?: string; status: number }> => {
     const response = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
       },
     });
-    return response.json();
+    const data = await response.json();
+    return { ...data, status: response.status };
   },
 
   // Update Profile
-  updateProfile: async (token: string, userData: any): Promise<{ success: boolean; message: string; data?: any; errors?: any }> => {
+  updateProfile: async (token: string, userData: any): Promise<{ success: boolean; message: string; data?: any; errors?: any; status: number }> => {
     const isFormData = userData instanceof FormData;
     const response = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: 'PUT',
@@ -198,7 +242,8 @@ export const authApi = {
       },
       body: isFormData ? userData : JSON.stringify(userData),
     });
-    return response.json();
+    const data = await response.json();
+    return { ...data, status: response.status };
   },
 };
 

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
+import { MusicProvider } from "@/context/MusicContext";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -28,9 +29,11 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-background-dark text-white font-display antialiased overflow-x-hidden">
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <MusicProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </MusicProvider>
       </body>
     </html>
   );

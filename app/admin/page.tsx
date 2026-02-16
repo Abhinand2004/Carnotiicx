@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { adminApi, Product, getAuthToken, removeAuthToken } from "@/lib/api";
 
+interface MusicTrack {
+  _id: string;
+  title: string;
+  url: string;
+}
+
 export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +28,25 @@ export default function AdminPage() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [colorInput, setColorInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Music Management State
+  const [musicTracks, setMusicTracks] = useState<MusicTrack[]>([]);
+  const [musicLoading, setMusicLoading] = useState(false);
+  const [musicFormData, setMusicFormData] = useState({ title: "" });
+  const [musicFile, setMusicFile] = useState<File | null>(null);
+  const [musicSubmitting, setMusicSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<"products" | "music">("products");
+
   const router = useRouter();
+
+  const handleAuthError = (status: number) => {
+    if (status === 401 || status === 403) {
+      removeAuthToken();
+      router.push("/admin/login");
+      return true;
+    }
+    return false;
+  };
 
   useEffect(() => {
     const token = getAuthToken();
@@ -31,7 +55,27 @@ export default function AdminPage() {
       return;
     }
     fetchProducts();
+    fetchMusic();
   }, [router]);
+
+  const fetchMusic = async () => {
+    try {
+      setMusicLoading(true);
+      const token = getAuthToken();
+      if (!token) return;
+
+      const response = await adminApi.getMusic(token);
+      if (handleAuthError(response.status)) return;
+
+      if (response.success) {
+        setMusicTracks(response.data);
+      }
+    } catch (err) {
+      console.error('Error fetching music:', err);
+    } finally {
+      setMusicLoading(false);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -40,6 +84,8 @@ export default function AdminPage() {
       if (!token) return;
 
       const response = await adminApi.getProducts(token);
+      if (handleAuthError(response.status)) return;
+
       if (response.success) {
         setProducts(response.data);
       } else {
@@ -54,6 +100,62 @@ export default function AdminPage() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMusicSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!musicFile || !musicFormData.title) return;
+    setMusicSubmitting(true);
+
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        router.push("/admin/login");
+        return;
+      }
+      const formData = new FormData();
+      formData.append('title', musicFormData.title);
+      formData.append('audio', musicFile);
+
+      const response = await adminApi.uploadMusic(token, formData);
+      if (handleAuthError(response.status)) return;
+
+      if (response.success) {
+        await fetchMusic();
+        setMusicFormData({ title: "" });
+        setMusicFile(null);
+      } else {
+        setError(response.message || "Failed to upload music");
+      }
+    } catch (err) {
+      console.error('Error uploading music:', err);
+      setError("Error uploading music");
+    } finally {
+      setMusicSubmitting(false);
+    }
+  };
+
+  const handleMusicDelete = async (id: string) => {
+    if (!confirm("Delete this track?")) return;
+
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        router.push("/admin/login");
+        return;
+      }
+      const response = await adminApi.deleteMusic(token, id);
+      if (handleAuthError(response.status)) return;
+
+      if (response.success) {
+        await fetchMusic();
+      } else {
+        setError(response.message || "Failed to delete music");
+      }
+    } catch (err) {
+      console.error('Error deleting music:', err);
+      setError("Error deleting music");
     }
   };
 
@@ -88,6 +190,8 @@ export default function AdminPage() {
       } else {
         response = await adminApi.createProduct(token, formDataObj);
       }
+
+      if (handleAuthError(response.status)) return;
 
       if (response.success) {
         await fetchProducts();
@@ -208,302 +312,394 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Add/Edit Product Form */}
-        {showAddForm && (
-          <div className="bg-gray-900 p-6 rounded-lg mb-8">
-            <h2 className="text-xl font-bold mb-4">
-              {editingProduct ? "Edit Product" : "Add New Product"}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Product Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.productName}
-                    onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
-                    className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Price</label>
-                  <input
-                    type="number"
-                    required
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Colors</label>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={colorInput}
-                      onChange={(e) => setColorInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
-                      className="flex-1 p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
-                      placeholder="Add color"
-                    />
-                    <button
-                      type="button"
-                      onClick={addColor}
-                      className="bg-primary text-black px-4 py-2 rounded hover:bg-primary/80"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.colors.map((color) => (
-                      <span
-                        key={color}
-                        className="bg-gray-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                      >
-                        {color}
+        {/* Tabs */}
+        <div className="flex gap-4 mb-8 border-b border-gray-800">
+          <button
+            onClick={() => setActiveTab("products")}
+            className={`pb-4 px-2 font-bold transition-colors ${activeTab === "products" ? "text-primary border-b-2 border-primary" : "text-gray-500 hover:text-white"}`}
+          >
+            Products
+          </button>
+          <button
+            onClick={() => setActiveTab("music")}
+            className={`pb-4 px-2 font-bold transition-colors ${activeTab === "music" ? "text-primary border-b-2 border-primary" : "text-gray-500 hover:text-white"}`}
+          >
+            Background Music
+          </button>
+        </div>
+
+        {activeTab === "products" ? (
+          <>
+            {/* Add/Edit Product Form */}
+            {showAddForm && (
+              <div className="bg-gray-900 p-6 rounded-lg mb-8">
+                <h2 className="text-xl font-bold mb-4">
+                  {editingProduct ? "Edit Product" : "Add New Product"}
+                </h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Product Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.productName}
+                        onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Price</label>
+                      <input
+                        type="number"
+                        required
+                        step="0.01"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Colors</label>
+                      <div className="flex gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={colorInput}
+                          onChange={(e) => setColorInput(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
+                          className="flex-1 p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                          placeholder="Add color"
+                        />
                         <button
                           type="button"
-                          onClick={() => removeColor(color)}
-                          className="text-red-400 hover:text-red-300"
+                          onClick={addColor}
+                          className="bg-primary text-black px-4 py-2 rounded hover:bg-primary/80"
                         >
-                          ×
+                          Add
                         </button>
-                      </span>
-                    ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.colors.map((color) => (
+                          <span
+                            key={color}
+                            className="bg-gray-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                          >
+                            {color}
+                            <button
+                              type="button"
+                              onClick={() => removeColor(color)}
+                              className="text-red-400 hover:text-red-300"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Type</label>
+                      <select
+                        value={formData.type}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value as "car" | "bike" | "f1" })}
+                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                      >
+                        <option value="car">Car</option>
+                        <option value="bike">Bike</option>
+                        <option value="f1">F1</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Discount Percentage</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.discountPercentage}
+                        onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })}
+                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Product Images (Optional)</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageChange}
+                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                      />
+                      <div className="text-sm text-gray-400 mt-1">
+                        {imageFiles.length > 0 && `${imageFiles.length} file(s) selected`}
+                        {imageFiles.length === 0 && "No images selected - placeholder will be used"}
+                        {editingProduct && imageFiles.length === 0 && "Leave empty to keep current images"}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Type</label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value as "car" | "bike" | "f1" })}
-                    className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
-                  >
-                    <option value="car">Car</option>
-                    <option value="bike">Bike</option>
-                    <option value="f1">F1</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Discount Percentage</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={formData.discountPercentage}
-                    onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })}
-                    className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Product Images (Optional)</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageChange}
-                    className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
-                  />
-                  <div className="text-sm text-gray-400 mt-1">
-                    {imageFiles.length > 0 && `${imageFiles.length} file(s) selected`}
-                    {imageFiles.length === 0 && "No images selected - placeholder will be used"}
-                    {editingProduct && imageFiles.length === 0 && "Leave empty to keep current images"}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Description</label>
+                    <textarea
+                      required
+                      rows={3}
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                    />
                   </div>
-                </div>
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full sm:w-auto bg-primary text-black px-8 py-3 rounded-lg font-bold hover:bg-primary/80 disabled:opacity-50 transition-all active:scale-95"
+                    >
+                      {submitting ? "Saving..." : editingProduct ? "Update Product" : "Add Product"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddForm(false);
+                        resetForm();
+                      }}
+                      className="w-full sm:w-auto bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-all border border-gray-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Description</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full sm:w-auto bg-primary text-black px-8 py-3 rounded-lg font-bold hover:bg-primary/80 disabled:opacity-50 transition-all active:scale-95"
-                >
-                  {submitting ? "Saving..." : editingProduct ? "Update Product" : "Add Product"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    resetForm();
-                  }}
-                  className="w-full sm:w-auto bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-all border border-gray-700"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+            )}
 
-        {/* Products List */}
-        <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
-          {/* Desktop Table View */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-800">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    Discount
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
+            {/* Products List */}
+            <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-800">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Product
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Price
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Type
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Discount
+                      </th>
+                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800">
+                    {products.map((product) => (
+                      <tr key={product._id} className="hover:bg-gray-800/50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="relative h-12 w-12 mr-4">
+                              <Image
+                                src={Array.isArray(product.productImage) ? product.productImage[0] : product.productImage}
+                                alt={product.productName}
+                                fill
+                                className="rounded object-cover"
+                                unoptimized
+                              />
+                            </div>
+                            <div>
+                              <div className="text-sm font-semibold text-white">
+                                {product.productName}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {Array.isArray(product.color) ? product.color.join(", ") : product.color}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-white">
+                            ${product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
+                          </div>
+                          {product.discountPercentage > 0 && (
+                            <div className="text-xs text-gray-500 line-through">
+                              ${product.price.toFixed(2)}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-primary/10 text-primary border border-primary/20">
+                            {product.type.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                          {product.discountPercentage > 0 ? (
+                            <span className="text-green-500 font-medium">{product.discountPercentage}% OFF</span>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            onClick={() => handleEdit(product)}
+                            className="text-primary hover:text-white transition-colors mr-4"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product._id)}
+                            className="text-red-500 hover:text-red-400 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-800">
                 {products.map((product) => (
-                  <tr key={product._id} className="hover:bg-gray-800/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="relative h-12 w-12 mr-4">
-                          <Image
-                            src={Array.isArray(product.productImage) ? product.productImage[0] : product.productImage}
-                            alt={product.productName}
-                            fill
-                            className="rounded object-cover"
-                            unoptimized
-                          />
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-white">
-                            {product.productName}
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            {Array.isArray(product.color) ? product.color.join(", ") : product.color}
-                          </div>
+                  <div key={product._id} className="p-4 space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="relative h-16 w-16 flex-shrink-0">
+                        <Image
+                          src={Array.isArray(product.productImage) ? product.productImage[0] : product.productImage}
+                          alt={product.productName}
+                          fill
+                          className="rounded-lg object-cover"
+                          unoptimized
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-bold text-white truncate">{product.productName}</h3>
+                        <p className="text-xs text-gray-400 truncate">
+                          {Array.isArray(product.color) ? product.color.join(", ") : product.color}
+                        </p>
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="text-sm font-bold text-primary">
+                            ${product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
+                          </span>
+                          {product.discountPercentage > 0 && (
+                            <span className="text-xs text-gray-500 line-through">
+                              ${product.price.toFixed(2)}
+                            </span>
+                          )}
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-white">
-                        ${product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
+                      <div className="flex-shrink-0">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/10 text-primary border border-primary/20">
+                          {product.type.toUpperCase()}
+                        </span>
                       </div>
-                      {product.discountPercentage > 0 && (
-                        <div className="text-xs text-gray-500 line-through">
-                          ${product.price.toFixed(2)}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-primary/10 text-primary border border-primary/20">
-                        {product.type.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      {product.discountPercentage > 0 ? (
-                        <span className="text-green-500 font-medium">{product.discountPercentage}% OFF</span>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
                       <button
                         onClick={() => handleEdit(product)}
-                        className="text-primary hover:text-white transition-colors mr-4"
+                        className="flex-1 bg-gray-800 text-primary py-2 rounded-lg text-sm font-bold border border-primary/20 active:scale-95 transition-all"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(product._id)}
-                        className="text-red-500 hover:text-red-400 transition-colors"
+                        className="flex-1 bg-red-900/20 text-red-500 py-2 rounded-lg text-sm font-bold border border-red-900/30 active:scale-95 transition-all"
                       >
                         Delete
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Card View */}
-          <div className="md:hidden divide-y divide-gray-800">
-            {products.map((product) => (
-              <div key={product._id} className="p-4 space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="relative h-16 w-16 flex-shrink-0">
-                    <Image
-                      src={Array.isArray(product.productImage) ? product.productImage[0] : product.productImage}
-                      alt={product.productName}
-                      fill
-                      className="rounded-lg object-cover"
-                      unoptimized
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-bold text-white truncate">{product.productName}</h3>
-                    <p className="text-xs text-gray-400 truncate">
-                      {Array.isArray(product.color) ? product.color.join(", ") : product.color}
-                    </p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="text-sm font-bold text-primary">
-                        ${product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
-                      </span>
-                      {product.discountPercentage > 0 && (
-                        <span className="text-xs text-gray-500 line-through">
-                          ${product.price.toFixed(2)}
-                        </span>
-                      )}
                     </div>
                   </div>
-                  <div className="flex-shrink-0">
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/10 text-primary border border-primary/20">
-                      {product.type.toUpperCase()}
-                    </span>
+                ))}
+              </div>
+
+              {products.length === 0 && (
+                <div className="text-center py-16 text-gray-500 bg-gray-900">
+                  <div className="mb-4 text-4xl">📦</div>
+                  <p className="text-lg font-medium">No products found</p>
+                  <button
+                    onClick={() => setShowAddForm(true)}
+                    className="mt-4 text-primary font-bold underline"
+                  >
+                    Add your first product
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          /* Music Management Section */
+          <div className="space-y-8">
+            <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
+              <h2 className="text-xl font-bold mb-4">Upload New Background Music</h2>
+              <form onSubmit={handleMusicSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Track Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={musicFormData.title}
+                      onChange={(e) => setMusicFormData({ ...musicFormData, title: e.target.value })}
+                      className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                      placeholder="e.g. Engine Roar Theme"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Audio File</label>
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      required
+                      onChange={(e) => setMusicFile(e.target.files?.[0] || null)}
+                      className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                    />
                   </div>
                 </div>
-
-                <div className="flex items-center gap-3 pt-2">
-                  <button
-                    onClick={() => handleEdit(product)}
-                    className="flex-1 bg-gray-800 text-primary py-2 rounded-lg text-sm font-bold border border-primary/20 active:scale-95 transition-all"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product._id)}
-                    className="flex-1 bg-red-900/20 text-red-500 py-2 rounded-lg text-sm font-bold border border-red-900/30 active:scale-95 transition-all"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {products.length === 0 && (
-            <div className="text-center py-16 text-gray-500 bg-gray-900">
-              <div className="mb-4 text-4xl">📦</div>
-              <p className="text-lg font-medium">No products found</p>
-              <button
-                onClick={() => setShowAddForm(true)}
-                className="mt-4 text-primary font-bold underline"
-              >
-                Add your first product
-              </button>
+                <button
+                  type="submit"
+                  disabled={musicSubmitting}
+                  className="bg-primary text-black px-8 py-3 rounded-lg font-bold hover:bg-primary/80 disabled:opacity-50 transition-all active:scale-95"
+                >
+                  {musicSubmitting ? "Uploading..." : "Upload Music"}
+                </button>
+              </form>
             </div>
-          )}
-        </div>
+
+            <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
+              <table className="w-full">
+                <thead className="bg-gray-800">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Title</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">URL</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800">
+                  {musicTracks.map((track) => (
+                    <tr key={track._id} className="hover:bg-gray-800/50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">{track.title}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 truncate max-w-[200px]">{track.url}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => handleMusicDelete(track._id)}
+                          className="text-red-500 hover:text-red-400 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {musicTracks.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="px-6 py-8 text-center text-gray-500 italic">No music tracks uploaded yet</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

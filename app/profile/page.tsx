@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authApi, getUserToken, removeAuthToken } from "@/lib/api";
-import Navbar from "@/components/Navbar/Navbar";
+import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 
 export default function ProfilePage() {
@@ -24,6 +24,15 @@ export default function ProfilePage() {
     const [updateLoading, setUpdateLoading] = useState(false);
     const [updateSuccess, setUpdateSuccess] = useState(false);
 
+    const handleAuthError = (status: number) => {
+        if (status === 401 || status === 403) {
+            removeAuthToken();
+            router.push("/login");
+            return true;
+        }
+        return false;
+    };
+
     useEffect(() => {
         const fetchProfile = async () => {
             const token = getUserToken();
@@ -34,6 +43,8 @@ export default function ProfilePage() {
 
             try {
                 const response = await authApi.getProfile(token);
+                if (handleAuthError(response.status)) return;
+
                 if (response.success) {
                     setUser(response.data);
                     setFormData({
@@ -97,6 +108,8 @@ export default function ProfilePage() {
             }
 
             const response = await authApi.updateProfile(token, data);
+            if (handleAuthError(response.status)) return;
+
             if (response.success) {
                 setUser(response.data);
                 setIsEditing(false);
