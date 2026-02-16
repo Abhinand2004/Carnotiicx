@@ -10,6 +10,13 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-primary: #ea2a33;
+  --color-background-light: #f8f6f6;
+  --color-background-dark: #211111;
+  --color-card-dark: #221112;
+  --color-border-dark: #472426;
+  --color-text-muted: #c89295;
+  --color-input-dark: #472426;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +30,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+  max-width: 100vw;
 }
