@@ -30,7 +30,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const savedCart = localStorage.getItem("Carnottix_cart");
         if (savedCart) {
             try {
-                setCart(JSON.parse(savedCart));
+                const parsedCart = JSON.parse(savedCart);
+                setCart(parsedCart);
+
+                // Validate items against server
+                if (parsedCart.length > 0) {
+                    const validateCart = async () => {
+                        try {
+                            const ids = parsedCart.map((item: CartItem) => item.id);
+                            const { api } = await import("@/lib/api");
+                            const response = await api.validateProducts(ids);
+
+                            if (response.success) {
+                                const existingIds = new Set(response.existingIds);
+                                setCart(prev => prev.filter(item => existingIds.has(item.id)));
+                            }
+                        } catch (err) {
+                            console.error("Cart validation failed:", err);
+                        }
+                    };
+                    validateCart();
+                }
             } catch (e) {
                 console.error("Failed to load cart", e);
             }

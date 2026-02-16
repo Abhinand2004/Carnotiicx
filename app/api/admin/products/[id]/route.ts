@@ -104,13 +104,26 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
         // Delete images from Cloudinary in parallel
         if (product.cloudinaryPublicId && product.cloudinaryPublicId.length > 0) {
+            console.log(`[DELETE PRODUCT] Cleaning up Cloudinary assets for product ${id}:`, product.cloudinaryPublicId);
             const deletePromises = product.cloudinaryPublicId
-                .filter((pid: string) => pid !== 'placeholder')
-                .map((pid: string) => deleteFromCloudinary(pid));
+                .filter((pid: string) => pid && pid !== 'placeholder')
+                .map(async (pid: string) => {
+                    try {
+                        const result = await deleteFromCloudinary(pid);
+                        console.log(`[DELETE PRODUCT] Deleted asset ${pid}:`, result);
+                        return result;
+                    } catch (error) {
+                        console.error(`[DELETE PRODUCT] Failed to delete asset ${pid}:`, error);
+                        return null;
+                    }
+                });
             await Promise.all(deletePromises);
+        } else {
+            console.log(`[DELETE PRODUCT] No Cloudinary assets found for product ${id}`);
         }
 
         await Product.findByIdAndDelete(id);
+        console.log(`[DELETE PRODUCT] Successfully deleted product ${id} from database`);
 
         return NextResponse.json({
             success: true,

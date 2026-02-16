@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { adminApi, Product, getAuthToken, removeAuthToken } from "@/lib/api";
+import { api, adminApi, Product, getAuthToken, removeAuthToken } from "@/lib/api";
 
 interface MusicTrack {
   _id: string;
@@ -35,7 +35,13 @@ export default function AdminPage() {
   const [musicFormData, setMusicFormData] = useState({ title: "" });
   const [musicFile, setMusicFile] = useState<File | null>(null);
   const [musicSubmitting, setMusicSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"products" | "music">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "music" | "hero">("products");
+
+  // Hero Management State
+  const [heroSettings, setHeroSettings] = useState<{ value: string; isCustom: boolean; customValue?: string } | null>(null);
+  const [heroFile, setHeroFile] = useState<File | null>(null);
+  const [heroSubmitting, setHeroSubmitting] = useState(false);
+  const [heroLoading, setHeroLoading] = useState(false);
 
   const router = useRouter();
 
@@ -56,7 +62,22 @@ export default function AdminPage() {
     }
     fetchProducts();
     fetchMusic();
+    fetchHeroSettings();
   }, [router]);
+
+  const fetchHeroSettings = async () => {
+    try {
+      setHeroLoading(true);
+      const response = await api.getHeroSettings();
+      if (response.success) {
+        setHeroSettings(response.data);
+      }
+    } catch (err) {
+      console.error('Error fetching hero settings:', err);
+    } finally {
+      setHeroLoading(false);
+    }
+  };
 
   const fetchMusic = async () => {
     try {
@@ -156,6 +177,61 @@ export default function AdminPage() {
     } catch (err) {
       console.error('Error deleting music:', err);
       setError("Error deleting music");
+    }
+  };
+
+  const handleHeroSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!heroFile) return;
+    setHeroSubmitting(true);
+
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+
+      const formData = new FormData();
+      formData.append('image', heroFile);
+
+      const response = await adminApi.updateHeroBackground(formData, token);
+      if (handleAuthError(response.status)) return;
+
+      if (response.success) {
+        await fetchHeroSettings();
+        setHeroFile(null);
+        alert("Hero background updated successfully!");
+      } else {
+        setError(response.message || "Failed to update hero background");
+      }
+    } catch (err) {
+      console.error('Error updating hero background:', err);
+      setError("Error updating hero background");
+    } finally {
+      setHeroSubmitting(false);
+    }
+  };
+
+  const handleHeroReset = async () => {
+    if (!confirm("Reset to default background? This will not delete your custom image from the database.")) return;
+    setHeroSubmitting(true);
+
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+
+      const response = await adminApi.resetHeroBackground(token);
+      if (handleAuthError(response.status)) return;
+
+      if (response.success) {
+        await fetchHeroSettings();
+        alert("Reset to default background");
+      } else {
+        setError(response.message || "Failed to reset hero background");
+      }
+    } catch (err) {
+      console.error('Error resetting hero background:', err);
+      setError("Error resetting hero background");
+    } finally {
+      setHeroSubmitting(false);
     }
   };
 
@@ -326,9 +402,15 @@ export default function AdminPage() {
           >
             Background Music
           </button>
+          <button
+            onClick={() => setActiveTab("hero")}
+            className={`pb-4 px-2 font-bold transition-colors ${activeTab === "hero" ? "text-primary border-b-2 border-primary" : "text-gray-500 hover:text-white"}`}
+          >
+            Hero Management
+          </button>
         </div>
 
-        {activeTab === "products" ? (
+        {activeTab === "products" && (
           <>
             {/* Add/Edit Product Form */}
             {showAddForm && (
@@ -399,8 +481,9 @@ export default function AdminPage() {
                     <div>
                       <label className="block text-sm font-medium mb-2">Type</label>
                       <select
+                        required
                         value={formData.type}
-                        onChange={(e) => setFormData({ ...formData, type: e.target.value as "car" | "bike" | "f1" })}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
                         className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
                       >
                         <option value="car">Car</option>
@@ -409,7 +492,7 @@ export default function AdminPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Discount Percentage</label>
+                      <label className="block text-sm font-medium mb-2">Discount Percentage (%)</label>
                       <input
                         type="number"
                         min="0"
@@ -420,46 +503,53 @@ export default function AdminPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Product Images (Optional)</label>
+                      <label className="block text-sm font-medium mb-2">Product Images</label>
                       <input
                         type="file"
-                        accept="image/*"
                         multiple
-                        onChange={handleImageChange}
+                        accept="image/*"
+                        onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
                         className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
                       />
-                      <div className="text-sm text-gray-400 mt-1">
-                        {imageFiles.length > 0 && `${imageFiles.length} file(s) selected`}
-                        {imageFiles.length === 0 && "No images selected - placeholder will be used"}
-                        {editingProduct && imageFiles.length === 0 && "Leave empty to keep current images"}
-                      </div>
+                      {editingProduct && (
+                        <p className="text-xs text-gray-500 mt-1">Leave empty to keep current images</p>
+                      )}
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Description</label>
                     <textarea
                       required
-                      rows={3}
+                      rows={4}
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
-                    />
+                    ></textarea>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+                  <div className="flex gap-4">
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="w-full sm:w-auto bg-primary text-black px-8 py-3 rounded-lg font-bold hover:bg-primary/80 disabled:opacity-50 transition-all active:scale-95"
+                      className="bg-primary text-black px-8 py-2 rounded font-bold hover:bg-primary/80 disabled:opacity-50"
                     >
-                      {submitting ? "Saving..." : editingProduct ? "Update Product" : "Add Product"}
+                      {submitting ? "Saving..." : (editingProduct ? "Update Product" : "Add Product")}
                     </button>
                     <button
                       type="button"
                       onClick={() => {
                         setShowAddForm(false);
-                        resetForm();
+                        setEditingProduct(null);
+                        setFormData({
+                          productName: "",
+                          price: "",
+                          description: "",
+                          colors: [],
+                          type: "car",
+                          discountPercentage: "0",
+                        });
+                        setImageFiles([]);
                       }}
-                      className="w-full sm:w-auto bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-all border border-gray-700"
+                      className="bg-gray-700 text-white px-8 py-2 rounded font-bold hover:bg-gray-600"
                     >
                       Cancel
                     </button>
@@ -467,6 +557,17 @@ export default function AdminPage() {
                 </form>
               </div>
             )}
+
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">Product Catalog</h2>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="bg-primary text-black px-6 py-2 rounded-lg font-bold hover:bg-primary/80 flex items-center gap-2 active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined">add</span>
+                Add Product
+              </button>
+            </div>
 
             {/* Products List */}
             <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
@@ -496,8 +597,8 @@ export default function AdminPage() {
                     {products.map((product) => (
                       <tr key={product._id} className="hover:bg-gray-800/50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="relative h-12 w-12 mr-4">
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-10 w-10 flex-shrink-0">
                               <Image
                                 src={Array.isArray(product.productImage) ? product.productImage[0] : product.productImage}
                                 alt={product.productName}
@@ -506,7 +607,7 @@ export default function AdminPage() {
                                 unoptimized
                               />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <div className="text-sm font-semibold text-white">
                                 {product.productName}
                               </div>
@@ -627,7 +728,9 @@ export default function AdminPage() {
               )}
             </div>
           </>
-        ) : (
+        )}
+
+        {activeTab === "music" && (
           /* Music Management Section */
           <div className="space-y-8">
             <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
@@ -720,6 +823,107 @@ export default function AdminPage() {
               {musicTracks.length === 0 && (
                 <div className="py-12 text-center text-gray-500 italic bg-gray-900">
                   No music tracks uploaded yet
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "hero" && (
+          <div className="space-y-8">
+            <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
+              <h2 className="text-xl font-bold mb-6">Hero Background Management</h2>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                {/* Current Background Preview */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">Current View</h3>
+                  <div className="aspect-video relative rounded-lg overflow-hidden border border-white/10 shadow-2xl bg-black">
+                    {heroLoading ? (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      </div>
+                    ) : (
+                      <Image
+                        src={heroSettings?.value || ""}
+                        alt="Hero Background"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    )}
+                    <div className="absolute top-4 left-4">
+                      {heroSettings?.isCustom ? (
+                        <span className="bg-primary text-black text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-tighter shadow-lg">
+                          Custom Image
+                        </span>
+                      ) : (
+                        <span className="bg-gray-600 text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-tighter shadow-lg">
+                          System Default
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={handleHeroReset}
+                      disabled={heroSubmitting || !heroSettings?.isCustom}
+                      className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg font-bold text-sm uppercase tracking-widest border border-white/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      Set as Default
+                    </button>
+                  </div>
+                </div>
+
+                {/* Upload New Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">Upload New Background</h3>
+                  <form onSubmit={handleHeroSubmit} className="space-y-4">
+                    <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary/50 transition-colors group relative overflow-hidden">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setHeroFile(e.target.files?.[0] || null)}
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                      />
+                      {heroFile ? (
+                        <div className="text-primary font-bold truncate w-full px-4">
+                          {heroFile.name}
+                        </div>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-4xl text-gray-500 group-hover:text-primary transition-colors mb-2">
+                            add_photo_alternate
+                          </span>
+                          <span className="text-sm text-gray-400">Click to select or drag and drop</span>
+                        </>
+                      )}
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={heroSubmitting || !heroFile}
+                      className="w-full bg-primary text-black py-4 rounded-lg font-black uppercase tracking-widest transition-all active:scale-[0.98] disabled:opacity-50 shadow-[0_0_20px_rgba(234,42,51,0.2)] hover:shadow-[0_0_25px_rgba(234,42,51,0.4)]"
+                    >
+                      {heroSubmitting ? "Uploading..." : "Update Hero Background"}
+                    </button>
+                    <p className="text-[10px] text-gray-500 italic text-center">
+                      *Recommended resolution: 1920x1080 or higher.
+                    </p>
+                  </form>
+                </div>
+              </div>
+
+              {heroSettings?.customValue && !heroSettings.isCustom && (
+                <div className="mt-8 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-primary">info</span>
+                    <div>
+                      <p className="text-sm font-medium text-gray-300">
+                        Your custom image is still stored in the database.
+                        Uploading a new one will replace it, but you can always reset to default.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

@@ -21,8 +21,18 @@ export async function DELETE(
             return NextResponse.json({ success: false, message: 'Music not found' }, { status: 404 });
         }
 
-        await deleteFromCloudinary(music.cloudinaryPublicId);
+        if (music.cloudinaryPublicId) {
+            console.log(`[DELETE MUSIC] Cleaning up Cloudinary asset for music ${id}:`, music.cloudinaryPublicId);
+            try {
+                const result = await deleteFromCloudinary(music.cloudinaryPublicId);
+                console.log(`[DELETE MUSIC] Deleted asset ${music.cloudinaryPublicId}:`, result);
+            } catch (error) {
+                console.error(`[DELETE MUSIC] Failed to delete asset ${music.cloudinaryPublicId}:`, error);
+            }
+        }
+
         await Music.findByIdAndDelete(id);
+        console.log(`[DELETE MUSIC] Successfully deleted music ${id} from database`);
 
         return NextResponse.json({ success: true, message: 'Music deleted successfully' });
     } catch (error: any) {

@@ -80,6 +80,24 @@ export const api = {
     return response.json();
   },
 
+  // Get hero settings
+  getHeroSettings: async (): Promise<{ success: boolean; data: { value: string; isCustom: boolean; customValue?: string } }> => {
+    const response = await fetch(`${API_BASE_URL}/settings/hero`);
+    return response.json();
+  },
+
+  // Validate products in cart
+  validateProducts: async (ids: string[]): Promise<{ success: boolean; existingIds: string[] }> => {
+    const response = await fetch(`${API_BASE_URL}/products/validate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ids }),
+    });
+    return response.json();
+  },
+
   // Get discounted products
   getDiscountedProducts: async (): Promise<{ success: boolean; data: Product[]; count: number }> => {
     const response = await fetch(`${API_BASE_URL}/products/featured/discounted`);
@@ -179,6 +197,30 @@ export const adminApi = {
   deleteMusic: async (token: string, id: string): Promise<{ success: boolean; message: string; status: number }> => {
     const response = await fetch(`${API_BASE_URL}/admin/music/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    return { ...data, status: response.status };
+  },
+
+  // Hero Background Settings
+  updateHeroBackground: async (formData: FormData, token: string): Promise<{ success: boolean; message: string; data?: any; status: number }> => {
+    const response = await fetch(`${API_BASE_URL}/admin/settings/hero`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const data = await response.json();
+    return { ...data, status: response.status };
+  },
+
+  resetHeroBackground: async (token: string): Promise<{ success: boolean; message: string; data?: any; status: number }> => {
+    const response = await fetch(`${API_BASE_URL}/admin/settings/hero/reset`, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
       },

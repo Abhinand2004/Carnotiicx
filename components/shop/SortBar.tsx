@@ -7,7 +7,7 @@ export default function SortBar({ title = "New Arrivals" }: { title?: string }) 
         {title} <span className="text-primary">{"///"}</span>
       </h2>
 
-      <div className="flex items-center gap-2 text-sm text-gray-400">
+      <div className="hidden md:flex items-center gap-2 text-sm text-gray-400">
         <span>Sort by:</span>
         <select className="bg-transparent border-none text-white font-semibold focus:ring-0 cursor-pointer outline-none">
           <option value="featured">Featured</option>
