@@ -17,7 +17,7 @@ function ProductGridContent() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
-  const limit = 9;
+  const limit = 30;
 
   const fetchProducts = async (pageNum: number, isLoadMore: boolean = false) => {
     try {
