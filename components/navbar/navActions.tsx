@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import CartIcon from "./CartIcon";
+import CartIcon from "./cartIcon";
 import { getUserToken } from "@/lib/api";
 
 export default function NavActions() {

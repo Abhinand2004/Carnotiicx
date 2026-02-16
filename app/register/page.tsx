@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Navbar from "@/components/navbar/Navbar";
+import Navbar from "@/components/navbar/navbar";
 import RegisterPromo from "@/components/auth/RegisterPromo";
 import RegisterForm from "@/components/auth/RegisterForm";
 import Footer from "@/components/footer/Footer";

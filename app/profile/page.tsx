@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authApi, getUserToken, removeAuthToken } from "@/lib/api";
-import Navbar from "@/components/navbar/Navbar";
+import Navbar from "@/components/navbar/navbar";
 import Footer from "@/components/footer/Footer";
 
 export default function ProfilePage() {

@@ -1,8 +1,8 @@
-import NavLinks from "./NavLinks";
-import SearchBar from "./SearchBar";
-import NavActions from "./NavActions";
-import MobileNav from "./MobileNav";
-import MusicToggle from "./MusicToggle";
+import NavLinks from "./navLinks";
+import SearchBar from "./searchBar";
+import NavActions from "./navActions";
+import MobileNav from "./mobileNav";
+import MusicToggle from "./musicToggle";
 
 export default function Navbar() {
   return (
