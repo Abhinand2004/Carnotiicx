@@ -58,13 +58,20 @@ export async function POST(req: NextRequest) {
         const publicIds: string[] = [];
 
         if (productImages && productImages.length > 0) {
-            for (const file of productImages) {
-                if (file.size === 0) continue;
+            const uploadPromises = productImages.map(async (file) => {
+                if (file.size === 0) return null;
                 const buffer = await file.arrayBuffer();
                 const base64Image = `data:${file.type};base64,${Buffer.from(buffer).toString('base64')}`;
-                const result = await uploadToCloudinary(base64Image, 'products');
-                uploadedImages.push(result.secure_url);
-                publicIds.push(result.public_id);
+                return uploadToCloudinary(base64Image, 'products');
+            });
+
+            const results = await Promise.all(uploadPromises);
+
+            for (const result of results) {
+                if (result) {
+                    uploadedImages.push(result.secure_url);
+                    publicIds.push(result.public_id);
+                }
             }
         }
 

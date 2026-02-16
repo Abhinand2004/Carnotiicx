@@ -43,25 +43,31 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
         // Handle new images
         if (productImages && productImages.length > 0 && productImages[0].size > 0) {
-            // Delete old images from Cloudinary
+            // Delete old images from Cloudinary in parallel
             if (product.cloudinaryPublicId && product.cloudinaryPublicId.length > 0) {
-                for (const pid of product.cloudinaryPublicId) {
-                    if (pid !== 'placeholder') {
-                        await deleteFromCloudinary(pid);
-                    }
-                }
+                const deletePromises = product.cloudinaryPublicId
+                    .filter((pid: string) => pid !== 'placeholder')
+                    .map((pid: string) => deleteFromCloudinary(pid));
+                await Promise.all(deletePromises);
             }
 
             const uploadedImages: string[] = [];
             const publicIds: string[] = [];
 
-            for (const file of productImages) {
-                if (file.size === 0) continue;
+            const uploadPromises = productImages.map(async (file) => {
+                if (file.size === 0) return null;
                 const buffer = await file.arrayBuffer();
                 const base64Image = `data:${file.type};base64,${Buffer.from(buffer).toString('base64')}`;
-                const result = await uploadToCloudinary(base64Image, 'products');
-                uploadedImages.push(result.secure_url);
-                publicIds.push(result.public_id);
+                return uploadToCloudinary(base64Image, 'products');
+            });
+
+            const results = await Promise.all(uploadPromises);
+
+            for (const result of results) {
+                if (result) {
+                    uploadedImages.push(result.secure_url);
+                    publicIds.push(result.public_id);
+                }
             }
 
             product.productImage = uploadedImages;
@@ -96,13 +102,12 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
             return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
         }
 
-        // Delete images from Cloudinary
+        // Delete images from Cloudinary in parallel
         if (product.cloudinaryPublicId && product.cloudinaryPublicId.length > 0) {
-            for (const pid of product.cloudinaryPublicId) {
-                if (pid !== 'placeholder') {
-                    await deleteFromCloudinary(pid);
-                }
-            }
+            const deletePromises = product.cloudinaryPublicId
+                .filter((pid: string) => pid !== 'placeholder')
+                .map((pid: string) => deleteFromCloudinary(pid));
+            await Promise.all(deletePromises);
         }
 
         await Product.findByIdAndDelete(id);
