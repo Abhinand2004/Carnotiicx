@@ -52,7 +52,7 @@ export default function LoginForm() {
                     </div>
                     <input
                         className="w-full h-14 pl-12 pr-4 bg-input-dark text-white rounded-lg border border-transparent focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none placeholder:text-text-muted/50 transition-all duration-300 ease-out font-medium"
-                        placeholder="driver@carnotix.com"
+                        placeholder="driver@Carnottix.com"
                         type="email"
                         required
                         value={email}

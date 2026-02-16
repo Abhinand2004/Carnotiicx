@@ -9,7 +9,7 @@ cloudinary.config({
 export const uploadToCloudinary = async (fileUri: string, folder: string) => {
     try {
         const result = await cloudinary.uploader.upload(fileUri, {
-            folder: `carnotix/${folder}`,
+            folder: `Carnottix/${folder}`,
             resource_type: 'auto',
         });
         return result;

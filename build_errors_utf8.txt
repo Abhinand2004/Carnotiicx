@@ -1,9 +1,9 @@
-ï»¿
-> carnotix@0.1.0 build
+
+> Carnottix@0.1.0 build
 > next build
 
-Î“Ã»â–“ Next.js 16.1.1 (Turbopack)
+Gû¦ Next.js 16.1.1 (Turbopack)
 
   Creating an optimized production build ...
-Î“Â£Ã´ Compiled successfully in 4.2s
+G£ô Compiled successfully in 4.2s
   Running TypeScript ...

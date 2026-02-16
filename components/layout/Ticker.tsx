@@ -5,7 +5,7 @@ export default function Ticker() {
         {Array(3)
           .fill([
             "/// TOP DEALS",
-            "/// FREE SHIPPING ON ORDERS OVER $150",
+            "/// FREE SHIPPING ON ORDERS OVER ₹150",
             "/// NEW DROP: MIDNIGHT RUNNER",
             "/// LIMITED EDITION",
           ])

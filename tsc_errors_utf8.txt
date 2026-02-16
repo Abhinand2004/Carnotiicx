@@ -1,20 +1,20 @@
-﻿components/layout/Header.tsx(1,20): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/navbar/Navbar.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/Navbar/Navbar.tsx' only in casing.
+components/layout/Header.tsx(1,20): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/navbar/Navbar.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/Navbar/Navbar.tsx' only in casing.
   The file is in the program because:
-    Imported via "../navbar/Navbar" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/layout/Header.tsx'
-    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/tsconfig.json'
-components/navbar/NavActions.tsx(1,22): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/navbar/CartIcon.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/Navbar/CartIcon.tsx' only in casing.
+    Imported via "../navbar/Navbar" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/layout/Header.tsx'
+    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/tsconfig.json'
+components/navbar/NavActions.tsx(1,22): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/navbar/CartIcon.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/Navbar/CartIcon.tsx' only in casing.
   The file is in the program because:
-    Imported via "./CartIcon" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/navbar/NavActions.tsx'
-    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/tsconfig.json'
-components/navbar/Navbar.tsx(1,22): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/navbar/NavLinks.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/Navbar/NavLinks.tsx' only in casing.
+    Imported via "./CartIcon" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/navbar/NavActions.tsx'
+    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/tsconfig.json'
+components/navbar/Navbar.tsx(1,22): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/navbar/NavLinks.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/Navbar/NavLinks.tsx' only in casing.
   The file is in the program because:
-    Imported via "./NavLinks" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/navbar/Navbar.tsx'
-    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/tsconfig.json'
-components/navbar/Navbar.tsx(2,23): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/navbar/SearchBar.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/Navbar/SearchBar.tsx' only in casing.
+    Imported via "./NavLinks" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/navbar/Navbar.tsx'
+    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/tsconfig.json'
+components/navbar/Navbar.tsx(2,23): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/navbar/SearchBar.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/Navbar/SearchBar.tsx' only in casing.
   The file is in the program because:
-    Imported via "./SearchBar" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/navbar/Navbar.tsx'
-    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/tsconfig.json'
-components/navbar/Navbar.tsx(3,24): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/navbar/NavActions.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/Navbar/NavActions.tsx' only in casing.
+    Imported via "./SearchBar" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/navbar/Navbar.tsx'
+    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/tsconfig.json'
+components/navbar/Navbar.tsx(3,24): error TS1261: Already included file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/navbar/NavActions.tsx' differs from file name 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/Navbar/NavActions.tsx' only in casing.
   The file is in the program because:
-    Imported via "./NavActions" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/components/navbar/Navbar.tsx'
-    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/carnotix/tsconfig.json'
+    Imported via "./NavActions" from file 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/components/navbar/Navbar.tsx'
+    Matched by include pattern '**/*.tsx' in 'C:/Users/ABHINAND C/OneDrive/Desktop/Mainprojects/Carnottix/tsconfig.json'

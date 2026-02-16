@@ -126,7 +126,7 @@ function MobileNavContent() {
                         </Link>
 
                         <p className="text-center text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em] mt-8">
-                            © CARNOTIX MOTORSPORT 2024
+                            © Carnottix MOTORSPORT 2024
                         </p>
                     </div>
                 </div>

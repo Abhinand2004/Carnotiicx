@@ -60,7 +60,7 @@ export default function LoginPage() {
             </main>
 
             <footer className="relative z-10 py-6 text-center text-xs text-text-muted opacity-50">
-                <p>© 2024 CARNOTIX. All rights reserved.</p>
+                <p>© 2024 Carnottix. All rights reserved.</p>
             </footer>
         </div>
     );

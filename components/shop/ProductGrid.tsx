@@ -106,8 +106,8 @@ function ProductGridContent() {
             key={product._id}
             id={product._id}
             title={product.productName}
-            price={`$${(product.discountedPrice || product.price).toFixed(2)}`}
-            originalPrice={product.discountPercentage > 0 ? `$${product.price.toFixed(2)}` : undefined}
+            price={`₹${(product.discountedPrice || product.price).toFixed(2)}`}
+            originalPrice={product.discountPercentage > 0 ? `₹${product.price.toFixed(2)}` : undefined}
             image={Array.isArray(product.productImage) ? product.productImage[0] : product.productImage}
             badge={product.discountPercentage > 0 ? `${product.discountPercentage}% OFF` : undefined}
             type={product.type}

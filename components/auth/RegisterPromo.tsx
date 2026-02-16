@@ -25,7 +25,7 @@ export default function RegisterPromo() {
                 </h2>
                 <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
                     Create an account to unlock exclusive drops, track your
-                    high-performance orders, and join the global Carnotix community.
+                    high-performance orders, and join the global Carnottix community.
                 </p>
                 <div className="mt-8 flex gap-4">
                     <div className="flex -space-x-3">

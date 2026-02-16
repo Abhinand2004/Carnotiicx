@@ -26,9 +26,9 @@ export default function ProductInfo({ product }: { product: any }) {
     };
 
     const handleWhatsAppBuy = () => {
-        const phoneNumber = "8848565513";
+        const phoneNumber = "918848565513";
         const productImage = Array.isArray(product.productImage) ? product.productImage[0] : product.productImage;
-        const message = `*Buy Request from Carnotix*%0A%0A*Product:* ${product.productName}%0A*Size:* ${selectedSize}%0A*Price:* $${discountedPrice.toFixed(2)}%0A*Reference:* ${productImage}`;
+        const message = `*Buy Request from Carnottix*%0A%0A*Product:* ${product.productName}%0A*Size:* ${selectedSize}%0A*Price:* ₹${discountedPrice.toFixed(2)}%0A*Reference:* ${productImage}`;
 
         window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
     };
@@ -50,10 +50,10 @@ export default function ProductInfo({ product }: { product: any }) {
                 </p>
                 <div className="flex items-end justify-between">
                     <div className="flex items-center gap-3">
-                        <h2 className="text-3xl font-bold text-primary">${discountedPrice.toFixed(2)}</h2>
+                        <h2 className="text-3xl font-bold text-primary">₹{discountedPrice.toFixed(2)}</h2>
                         {product.discountPercentage > 0 && (
                             <span className="text-lg text-gray-500 line-through font-medium">
-                                ${product.price.toFixed(2)}
+                                ₹{product.price.toFixed(2)}
                             </span>
                         )}
                     </div>
@@ -169,7 +169,7 @@ export default function ProductInfo({ product }: { product: any }) {
                     </summary>
                     <div className="pt-4 text-gray-400 text-sm leading-relaxed">
                         <p>
-                            Free standard shipping on orders over $150. Returns accepted
+                            Free standard shipping on orders over ₹150. Returns accepted
                             within 30 days of delivery. Items must be unworn and in original
                             packaging.
                         </p>

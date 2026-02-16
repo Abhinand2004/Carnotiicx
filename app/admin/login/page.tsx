@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
       <div className="max-w-md w-full bg-gray-900 rounded-lg p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Admin Login</h1>
-          <p className="text-gray-400">Carnotix Admin Dashboard</p>
+          <p className="text-gray-400">Carnottix Admin Dashboard</p>
         </div>
 
         {error && (

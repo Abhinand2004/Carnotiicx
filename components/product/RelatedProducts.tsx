@@ -44,7 +44,7 @@ export default function RelatedProducts({ type, currentId }: { type: string; cur
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {products.map((product) => {
-                    const price = `$${product.price.toFixed(2)}`;
+                    const price = `₹${product.price.toFixed(2)}`;
                     const image = Array.isArray(product.productImage) ? product.productImage[0] : product.productImage;
 
                     return (
@@ -70,7 +70,7 @@ export default function RelatedProducts({ type, currentId }: { type: string; cur
                             </h4>
                             <div className="flex items-center gap-2">
                                 <p className="text-primary font-bold text-sm">
-                                    ${(product.discountPercentage > 0 ? product.price * (1 - product.discountPercentage / 100) : product.price).toFixed(2)}
+                                    ₹{(product.discountPercentage > 0 ? product.price * (1 - product.discountPercentage / 100) : product.price).toFixed(2)}
                                 </p>
                                 {product.discountPercentage > 0 && (
                                     <p className="text-gray-500 text-xs line-through">{price}</p>

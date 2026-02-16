@@ -11,7 +11,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Carnotix",
+  title: "Carnottix",
   description: "Motorsport Culture",
 };
 

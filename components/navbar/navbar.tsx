@@ -12,7 +12,7 @@ export default function Navbar() {
           <span className="material-symbols-outlined text-primary text-2xl lg:text-3xl group-hover:rotate-180 transition-transform duration-500">
             speed
           </span>
-          <h2 className="text-xl lg:text-2xl font-bold tracking-tighter">CARNOTIX</h2>
+          <h2 className="text-xl lg:text-2xl font-bold tracking-tighter">CARNOTTIX</h2>
         </a>
 
         <NavLinks />

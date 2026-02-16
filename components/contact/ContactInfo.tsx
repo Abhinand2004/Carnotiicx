@@ -41,7 +41,7 @@ export default function ContactInfo() {
                 </div>
                 <div className="flex items-center justify-between bg-input-dark rounded-lg px-4 py-3 border border-white/10 group cursor-pointer hover:border-primary/50 transition-colors">
                     <span className="text-white font-mono text-sm truncate">
-                        support@carnotix.com
+                        support@Carnottix.com
                     </span>
                     <span className="material-symbols-outlined text-gray-500 group-hover:text-white transition-colors text-sm">
                         content_copy

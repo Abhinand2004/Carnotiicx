@@ -78,7 +78,7 @@ function CartContent() {
                                                 <span className="px-3 text-xs font-bold text-gray-500 uppercase tracking-tighter">Qty: {item.quantity}</span>
                                             </div>
                                             <p className="text-xl font-black text-primary italic">
-                                                ${(item.price * item.quantity).toFixed(2)}
+                                                ₹{(item.price * item.quantity).toFixed(2)}
                                             </p>
                                         </div>
                                     </div>
@@ -97,7 +97,7 @@ function CartContent() {
                                 <div className="space-y-4 mb-6">
                                     <div className="flex justify-between text-gray-400 font-medium">
                                         <span>Subtotal</span>
-                                        <span className="text-white">${cartTotal.toFixed(2)}</span>
+                                        <span className="text-white">₹{cartTotal.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-400 font-medium">
                                         <span>Shipping</span>
@@ -105,22 +105,22 @@ function CartContent() {
                                     </div>
                                     <div className="flex justify-between text-gray-400 font-medium">
                                         <span>Tax</span>
-                                        <span className="text-white">$0.00</span>
+                                        <span className="text-white">₹0.00</span>
                                     </div>
                                 </div>
 
                                 <div className="border-t border-white/10 pt-4 mb-8">
                                     <div className="flex justify-between items-end">
                                         <span className="font-bold uppercase tracking-widest text-sm text-gray-300">Total</span>
-                                        <span className="text-3xl font-black text-white italic">${cartTotal.toFixed(2)}</span>
+                                        <span className="text-3xl font-black text-white italic">₹{cartTotal.toFixed(2)}</span>
                                     </div>
                                 </div>
 
                                 <button
                                     onClick={() => {
-                                        const phoneNumber = "8848565513";
+                                        const phoneNumber = "918848565513";
                                         const cartDetails = cart.map((item: any) => `- ${item.name} (${item.size}) x${item.quantity}`).join("%0A");
-                                        const message = `*Order Request from Carnotix*%0A%0A*Items:*%0A${cartDetails}%0A%0A*Total:* $${cartTotal.toFixed(2)}`;
+                                        const message = `*Order Request from Carnottix*%0A%0A*Items:*%0A${cartDetails}%0A%0A*Total:* ₹${cartTotal.toFixed(2)}`;
                                         window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
                                     }}
                                     className="w-full py-4 bg-primary hover:bg-red-600 text-white font-black uppercase tracking-widest rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-3"

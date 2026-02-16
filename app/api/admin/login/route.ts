@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
         if (!existingAdmin) {
             await User.create({
                 username: process.env.ADMIN_USERNAME || 'admin',
-                email: 'admin@carnotix.com',
+                email: 'admin@Carnottix.com',
                 password: process.env.ADMIN_PASSWORD || 'admin123',
                 role: 'admin'
             });

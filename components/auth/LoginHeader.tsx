@@ -17,7 +17,7 @@ export default function LoginHeader() {
                     </svg>
                 </div>
                 <h2 className="text-white text-xl font-bold tracking-tight">
-                    CARNOTIX
+                    Carnottix
                 </h2>
             </Link>
             <Link

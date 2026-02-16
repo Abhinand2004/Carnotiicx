@@ -20,7 +20,7 @@ export default function Footer() {
                                 </svg>
                             </div>
                             <h2 className="text-xl font-extrabold uppercase italic text-white">
-                                Carnotix
+                                Carnottix
                             </h2>
                         </div>
                         <p className="text-gray-400 text-sm leading-relaxed mb-6">
@@ -109,7 +109,7 @@ export default function Footer() {
                     </div>
                 </div>
                 <div className="border-t border-border-dark pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 font-medium">
-                    <p>© 2024 CARNOTIX. All rights reserved.</p>
+                    <p>© 2024 CARNOTTIX. All rights reserved.</p>
                     <div className="flex gap-6">
                         <Link className="hover:text-white" href="#">
                             Privacy Policy

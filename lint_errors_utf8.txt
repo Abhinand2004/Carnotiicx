@@ -1,10 +1,10 @@
-﻿
-> carnotix@0.1.0 lint
+
+> Carnottix@0.1.0 lint
 > eslint
 
 
-C:\Users\ABHINAND C\OneDrive\Desktop\Mainprojects\carnotix\components\shop\SortBar.tsx
+C:\Users\ABHINAND C\OneDrive\Desktop\Mainprojects\Carnottix\components\shop\SortBar.tsx
   7:53  error  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
 
-Γ£û 1 problem (1 error, 0 warnings)
+G�� 1 problem (1 error, 0 warnings)
 

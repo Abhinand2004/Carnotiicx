@@ -8,7 +8,7 @@ export default function Footer() {
             <span className="material-symbols-outlined text-primary text-3xl group-hover:rotate-180 transition-transform duration-500">
               speed
             </span>
-            <h2 className="text-2xl font-bold tracking-tighter">CARNOTIX</h2>
+            <h2 className="text-2xl font-bold tracking-tighter">Carnottix</h2>
           </a>
 
           <p className="text-gray-400 text-sm leading-relaxed mb-6">
@@ -80,7 +80,7 @@ export default function Footer() {
 
       <div className="max-w-[1600px] mx-auto border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-xs text-gray-500">
-          © 2024 CARNOTIX. All rights reserved.
+          © 2024 Carnottix. All rights reserved.
         </p>
 
         <div className="flex gap-6">

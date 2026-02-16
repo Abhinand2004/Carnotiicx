@@ -27,7 +27,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     // Load cart from localStorage on mount
     useEffect(() => {
-        const savedCart = localStorage.getItem("carnotix_cart");
+        const savedCart = localStorage.getItem("Carnottix_cart");
         if (savedCart) {
             try {
                 setCart(JSON.parse(savedCart));
@@ -39,7 +39,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     // Save cart to localStorage on changes
     useEffect(() => {
-        localStorage.setItem("carnotix_cart", JSON.stringify(cart));
+        localStorage.setItem("Carnottix_cart", JSON.stringify(cart));
     }, [cart]);
 
     const addItem = (newItem: CartItem) => {

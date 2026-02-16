@@ -9,7 +9,7 @@ export default function ContactHero() {
                 <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none text-white">
                     Contact{" "}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">
-                        Carnotix
+                        Carnottix
                     </span>
                 </h1>
                 <p className="text-gray-400 text-lg md:text-xl max-w-xl leading-relaxed mt-2">

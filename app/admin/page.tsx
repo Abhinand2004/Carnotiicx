@@ -518,11 +518,11 @@ export default function AdminPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-white">
-                            ${product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
+                            ₹{product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
                           </div>
                           {product.discountPercentage > 0 && (
                             <div className="text-xs text-gray-500 line-through">
-                              ${product.price.toFixed(2)}
+                              ₹{product.price.toFixed(2)}
                             </div>
                           )}
                         </td>
@@ -579,11 +579,11 @@ export default function AdminPage() {
                         </p>
                         <div className="mt-1 flex items-center gap-2">
                           <span className="text-sm font-bold text-primary">
-                            ${product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
+                            ₹{product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
                           </span>
                           {product.discountPercentage > 0 && (
                             <span className="text-xs text-gray-500 line-through">
-                              ${product.price.toFixed(2)}
+                              ₹{product.price.toFixed(2)}
                             </span>
                           )}
                         </div>
@@ -659,7 +659,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={musicSubmitting}
-                  className="bg-primary text-black px-8 py-3 rounded-lg font-bold hover:bg-primary/80 disabled:opacity-50 transition-all active:scale-95"
+                  className="w-full sm:w-auto bg-primary text-black px-8 py-3 rounded-lg font-bold hover:bg-primary/80 disabled:opacity-50 transition-all active:scale-95"
                 >
                   {musicSubmitting ? "Uploading..." : "Upload Music"}
                 </button>
@@ -667,36 +667,61 @@ export default function AdminPage() {
             </div>
 
             <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
-              <table className="w-full">
-                <thead className="bg-gray-800">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Title</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">URL</th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-800">
-                  {musicTracks.map((track) => (
-                    <tr key={track._id} className="hover:bg-gray-800/50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">{track.title}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 truncate max-w-[200px]">{track.url}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleMusicDelete(track._id)}
-                          className="text-red-500 hover:text-red-400 transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {musicTracks.length === 0 && (
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-800">
                     <tr>
-                      <td colSpan={3} className="px-6 py-8 text-center text-gray-500 italic">No music tracks uploaded yet</td>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Title</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">URL</th>
+                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800">
+                    {musicTracks.map((track) => (
+                      <tr key={track._id} className="hover:bg-gray-800/50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">{track.title}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 truncate max-w-[200px]">{track.url}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            onClick={() => handleMusicDelete(track._id)}
+                            className="text-red-500 hover:text-red-400 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-800">
+                {musicTracks.map((track) => (
+                  <div key={track._id} className="p-4 space-y-3">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-bold text-white truncate">{track.title}</h3>
+                        <p className="text-xs text-gray-500 truncate mt-1">{track.url}</p>
+                      </div>
+                      <button
+                        onClick={() => handleMusicDelete(track._id)}
+                        className="text-red-500 hover:text-red-400 transition-colors text-xs font-bold uppercase tracking-wider flex items-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {musicTracks.length === 0 && (
+                <div className="py-12 text-center text-gray-500 italic bg-gray-900">
+                  No music tracks uploaded yet
+                </div>
+              )}
             </div>
           </div>
         )}
