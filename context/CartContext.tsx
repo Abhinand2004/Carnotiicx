@@ -5,7 +5,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 export interface CartItem {
     id: string;
     name: string;
-    price: number;
     image: string;
     size: string;
     quantity: number;
@@ -17,7 +16,6 @@ interface CartContextType {
     removeItem: (id: string, size: string) => void;
     clearCart: () => void;
     cartCount: number;
-    cartTotal: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -89,8 +87,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
 
     const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
-    const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-
     return (
         <CartContext.Provider
             value={{
@@ -99,7 +95,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 removeItem,
                 clearCart,
                 cartCount,
-                cartTotal,
             }}
         >
             {children}

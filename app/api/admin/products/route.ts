@@ -36,14 +36,13 @@ export async function POST(req: NextRequest) {
 
         const formData = await req.formData();
         const productName = formData.get('productName') as string;
-        const price = formData.get('price') as string;
         const description = formData.get('description') as string;
         const colors = formData.get('colors') as string;
         const type = formData.get('type') as string;
         const discountPercentage = formData.get('discountPercentage') as string;
         const productImages = formData.getAll('productImages') as File[];
 
-        if (!productName || !price || !description || !colors || !type) {
+        if (!productName || !description || !colors || !type) {
             return NextResponse.json({ success: false, message: 'Missing required fields' }, { status: 400 });
         }
 
@@ -83,7 +82,6 @@ export async function POST(req: NextRequest) {
 
         const product = await Product.create({
             productName,
-            price: parseFloat(price),
             description,
             color: parsedColors,
             type,

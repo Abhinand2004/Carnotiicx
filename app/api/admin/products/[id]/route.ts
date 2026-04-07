@@ -21,7 +21,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         }
 
         const productName = formData.get('productName') as string;
-        const price = formData.get('price') as string;
         const description = formData.get('description') as string;
         const colors = formData.get('colors') as string;
         const type = formData.get('type') as string;
@@ -29,7 +28,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         const productImages = formData.getAll('productImages') as File[];
 
         if (productName) product.productName = productName;
-        if (price) product.price = parseFloat(price);
         if (description) product.description = description;
         if (colors) {
             try {

@@ -5,15 +5,13 @@ interface Props {
   id: string;
   title: string;
   image: string;
-  price: string;
-  originalPrice?: string;
   badge?: string;
   type?: string;
   color?: string;
   description?: string;
 }
 
-export default function ProductCard({ id, title, image, price, originalPrice, badge }: Props) {
+export default function ProductCard({ id, title, image, badge }: Props) {
   return (
     <Link href={`/product/${id}`} className="block group">
       <div className="bg-surface-dark rounded-lg overflow-hidden border border-white/5 transition-all duration-300 group-hover:border-white/20">
@@ -35,12 +33,6 @@ export default function ProductCard({ id, title, image, price, originalPrice, ba
           <h3 className="text-lg font-medium text-white group-hover:text-primary transition-colors">
             {title}
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-gray-300">{price}</span>
-            {originalPrice && (
-              <span className="text-sm text-gray-500 line-through">{originalPrice}</span>
-            )}
-          </div>
         </div>
       </div>
     </Link>

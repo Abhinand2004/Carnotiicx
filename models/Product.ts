@@ -30,7 +30,6 @@ const productSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: [true, 'Price is required'],
         min: [0, 'Price cannot be negative']
     },
     description: {
@@ -81,6 +80,9 @@ const productSchema = new mongoose.Schema({
 
 // Calculate discounted price
 productSchema.virtual('discountedPrice').get(function () {
+    if (typeof this.price !== 'number') {
+        return undefined;
+    }
     if (this.discountPercentage > 0) {
         return this.price * (1 - this.discountPercentage / 100);
     }

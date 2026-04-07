@@ -9,7 +9,7 @@ export default function FAQPage() {
     return (
         <>
             <Header />
-            <main className="flex-grow flex flex-col items-center min-h-screen">
+            <main className="flex-grow flex flex-col items-center min-h-screen bg-background-dark">
                 <FAQHero />
                 <FAQFilters />
                 <FAQAccordion />

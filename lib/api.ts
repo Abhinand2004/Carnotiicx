@@ -3,7 +3,7 @@ const API_BASE_URL = '/api';
 export interface Product {
   _id: string;
   productName: string;
-  price: number;
+  price?: number;
   description: string;
   color: string | string[];
   type: 'car' | 'bike' | 'f1';
@@ -35,8 +35,6 @@ export const api = {
   // Get all products with optional filters, pagination, and search
   getProducts: async (params?: {
     type?: string;
-    minPrice?: number;
-    maxPrice?: number;
     sortBy?: string;
     page?: number;
     limit?: number;
@@ -45,8 +43,6 @@ export const api = {
     const queryParams = new URLSearchParams();
     if (params?.type) queryParams.append('type', params.type);
     if (params?.search) queryParams.append('search', params.search);
-    if (params?.minPrice) queryParams.append('minPrice', params.minPrice.toString());
-    if (params?.maxPrice) queryParams.append('maxPrice', params.maxPrice.toString());
     if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
@@ -83,6 +79,11 @@ export const api = {
   // Get hero settings
   getHeroSettings: async (): Promise<{ success: boolean; data: { value: string; isCustom: boolean; customValue?: string } }> => {
     const response = await fetch(`${API_BASE_URL}/settings/hero`);
+    return response.json();
+  },
+
+  getTickerSettings: async (): Promise<{ success: boolean; data: { items: string[] } }> => {
+    const response = await fetch(`${API_BASE_URL}/settings/ticker`);
     return response.json();
   },
 
@@ -224,6 +225,29 @@ export const adminApi = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
+    });
+    const data = await response.json();
+    return { ...data, status: response.status };
+  },
+
+  getTickerSettings: async (token: string): Promise<{ success: boolean; data: { items: string[] }; status: number; message?: string }> => {
+    const response = await fetch(`${API_BASE_URL}/admin/settings/ticker`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    return { ...data, status: response.status };
+  },
+
+  updateTickerSettings: async (token: string, items: string[]): Promise<{ success: boolean; data?: { items: string[] }; message: string; status: number }> => {
+    const response = await fetch(`${API_BASE_URL}/admin/settings/ticker`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ items }),
     });
     const data = await response.json();
     return { ...data, status: response.status };

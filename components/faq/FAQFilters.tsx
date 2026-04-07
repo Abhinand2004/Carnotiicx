@@ -15,14 +15,14 @@ export default function FAQFilters() {
 
     return (
         <div className="w-full max-w-[960px] px-4 -mt-8 relative z-30 mb-12">
-            <div className="bg-white dark:bg-surface-dark border border-neutral-200 dark:border-white/10 p-2 rounded-xl shadow-2xl flex overflow-x-auto no-scrollbar gap-2">
+            <div className="bg-[#150a0a] border border-white/10 p-2 rounded-xl shadow-2xl flex overflow-x-auto no-scrollbar gap-2">
                 {categories.map((cat) => (
                     <button
                         key={cat.id}
                         onClick={() => setActiveRange(cat.id)}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-lg transition-all shrink-0 hover:scale-[1.02] ${activeRange === cat.id
                                 ? "bg-primary text-white"
-                                : "bg-transparent hover:bg-neutral-100 dark:hover:bg-white/5 text-slate-600 dark:text-gray-400 dark:hover:text-white"
+                                : "bg-transparent hover:bg-white/5 text-gray-400 hover:text-white"
                             }`}
                     >
                         <span className="material-symbols-outlined text-[20px]">

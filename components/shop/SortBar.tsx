@@ -11,8 +11,8 @@ export default function SortBar({ title = "New Arrivals" }: { title?: string }) 
         <span>Sort by:</span>
         <select className="bg-transparent border-none text-white font-semibold focus:ring-0 cursor-pointer outline-none">
           <option value="featured">Featured</option>
-          <option value="price-low">Price: Low to High</option>
-          <option value="price-high">Price: High to Low</option>
+          <option value="newest">Newest</option>
+          <option value="discount">Discount</option>
         </select>
       </div>
     </div>

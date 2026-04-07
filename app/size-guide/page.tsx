@@ -9,7 +9,7 @@ export default function SizeGuidePage() {
     return (
         <>
             <Header />
-            <main className="flex-1 bg-background-light dark:bg-background-dark min-h-screen">
+            <main className="flex-1 bg-background-dark min-h-screen">
                 <SizeHero />
                 <SizeExplainer />
                 <SizeSpecs />

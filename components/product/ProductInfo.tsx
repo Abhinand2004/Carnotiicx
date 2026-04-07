@@ -9,33 +9,40 @@ export default function ProductInfo({ product }: { product: any }) {
 
     if (!product) return null;
 
-    const discountedPrice = product.discountPercentage > 0
-        ? product.price * (1 - product.discountPercentage / 100)
-        : product.price;
-
     const handleAddToCart = () => {
         addItem({
             id: product._id,
             name: product.productName,
-            price: discountedPrice,
             image: Array.isArray(product.productImage) ? product.productImage[0] : product.productImage,
             size: selectedSize,
             quantity: 1
         });
-        // Optional: show a toast or feedback
     };
 
     const handleWhatsAppBuy = () => {
         const phoneNumber = "918848565513";
         const productImage = Array.isArray(product.productImage) ? product.productImage[0] : product.productImage;
-        const message = `*Buy Request from Carnottix*%0A%0A*Product:* ${product.productName}%0A*Size:* ${selectedSize}%0A*Price:* ₹${discountedPrice.toFixed(2)}%0A*Reference:* ${productImage}`;
+        const message = [
+            "👕 *Carnottix — Custom Order Request*",
+            "",
+            "I'd like to place a custom order for the following item.",
+            "",
+            "*Order Details:*",
+            `• Product: ${product.productName}`,
+            "• Condition: New",
+            `• Size: ${selectedSize}`,
+            "",
+            "*Reference Design:*",
+            productImage,
+            "",
+            "Please confirm availability and next steps."
+        ].join("%0A");
 
         window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
     };
 
     return (
         <div className="flex flex-col h-full sticky top-24">
-            {/* Title & Price */}
             <div className="border-b border-white/10 pb-6 mb-6">
                 <div className="flex items-start justify-between gap-4 mb-2">
                     <h1 className="text-3xl md:text-4xl font-black uppercase leading-tight tracking-tight">
@@ -48,15 +55,7 @@ export default function ProductInfo({ product }: { product: any }) {
                 <p className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-4">
                     {product.type} Series Collection
                 </p>
-                <div className="flex items-end justify-between">
-                    <div className="flex items-center gap-3">
-                        <h2 className="text-3xl font-bold text-primary">₹{discountedPrice.toFixed(2)}</h2>
-                        {product.discountPercentage > 0 && (
-                            <span className="text-lg text-gray-500 line-through font-medium">
-                                ₹{product.price.toFixed(2)}
-                            </span>
-                        )}
-                    </div>
+                <div className="flex items-end justify-end">
                     <div className="flex items-center gap-2">
                         <div className="flex text-primary text-sm">
                             {[1, 2, 3, 4, 5].map((i) => (
@@ -76,9 +75,7 @@ export default function ProductInfo({ product }: { product: any }) {
                 </div>
             </div>
 
-            {/* Selectors */}
             <div className="mb-8 space-y-6">
-                {/* Size */}
                 <div>
                     <div className="flex justify-between items-center mb-3">
                         <span className="text-sm font-bold uppercase tracking-wider text-gray-300">
@@ -112,7 +109,6 @@ export default function ProductInfo({ product }: { product: any }) {
                 </div>
             </div>
 
-            {/* Actions */}
             <div className="grid grid-cols-1 gap-3 mb-8">
                 <button
                     onClick={handleWhatsAppBuy}
@@ -134,7 +130,6 @@ export default function ProductInfo({ product }: { product: any }) {
                 </button>
             </div>
 
-            {/* Details Accordion */}
             <div className="border-t border-white/10">
                 <details className="group py-4 border-b border-white/10 cursor-pointer" open>
                     <summary className="flex items-center justify-between font-bold uppercase text-sm tracking-wider list-none text-gray-300 group-hover:text-white transition-colors">
@@ -166,9 +161,8 @@ export default function ProductInfo({ product }: { product: any }) {
                     </summary>
                     <div className="pt-4 text-gray-400 text-sm leading-relaxed">
                         <p>
-                            Free standard shipping on orders over ₹150. Returns accepted
-                            within 30 days of delivery. Items must be unworn and in original
-                            packaging.
+                            Shipping details and return support are shared directly on WhatsApp. Returns accepted
+                            within 30 days of delivery. Items must be unworn and in original packaging.
                         </p>
                     </div>
                 </details>

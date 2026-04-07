@@ -27,15 +27,15 @@ export default function FAQAccordion() {
             {faqs.map((item, i) => (
                 <details
                     key={i}
-                    className="group rounded-lg bg-white dark:bg-surface-dark border border-neutral-200 dark:border-white/10 open:border-primary dark:open:border-primary transition-all duration-300"
+                    className="group rounded-lg bg-[#150a0a] border border-white/10 open:border-primary transition-all duration-300"
                     open={i === 0}
                 >
                     <summary className="flex cursor-pointer list-none items-center justify-between p-6 transition-colors">
                         <div className="flex items-center gap-4">
-                            <span className="flex size-8 items-center justify-center rounded bg-neutral-100 dark:bg-white/5 text-neutral-500 dark:text-gray-400 font-bold text-xs group-open:text-primary group-open:bg-primary/10 transition-colors">
+                            <span className="flex size-8 items-center justify-center rounded bg-white/5 text-gray-400 font-bold text-xs group-open:text-primary group-open:bg-primary/10 transition-colors">
                                 {String(i + 1).padStart(2, "0")}
                             </span>
-                            <h3 className="text-slate-900 dark:text-white text-base md:text-lg font-bold uppercase tracking-tight group-hover:text-primary transition-colors">
+                            <h3 className="text-white text-base md:text-lg font-bold uppercase tracking-tight group-hover:text-primary transition-colors">
                                 {item.q}
                             </h3>
                         </div>
@@ -44,9 +44,9 @@ export default function FAQAccordion() {
                         </span>
                     </summary>
                     <div className="px-6 pb-6 pt-0">
-                        <div className="h-px w-full bg-neutral-100 dark:bg-white/5 mb-4"></div>
+                        <div className="h-px w-full bg-white/5 mb-4"></div>
                         <p
-                            className="text-slate-600 dark:text-gray-400 leading-relaxed"
+                            className="text-gray-400 leading-relaxed"
                             dangerouslySetInnerHTML={{ __html: item.a }}
                         />
                     </div>

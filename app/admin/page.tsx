@@ -11,6 +11,18 @@ interface MusicTrack {
   url: string;
 }
 
+interface TickerSettings {
+  items: string[];
+}
+
+type ProductType = "car" | "bike" | "f1";
+
+const buildTickerLoopItems = (items: string[]) => {
+  const baseItems = items.length > 0 ? items : ["Add ticker items to preview the motion"];
+  const repeatCount = Math.max(3, Math.ceil(12 / baseItems.length));
+  return Array.from({ length: repeatCount }, () => baseItems).flat();
+};
+
 export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +31,6 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
     productName: "",
-    price: "",
     description: "",
     colors: [] as string[],
     type: "car" as "car" | "bike" | "f1",
@@ -42,8 +53,13 @@ export default function AdminPage() {
   const [heroFile, setHeroFile] = useState<File | null>(null);
   const [heroSubmitting, setHeroSubmitting] = useState(false);
   const [heroLoading, setHeroLoading] = useState(false);
+  const [tickerSettings, setTickerSettings] = useState<TickerSettings>({ items: [] });
+  const [tickerInput, setTickerInput] = useState("");
+  const [tickerSubmitting, setTickerSubmitting] = useState(false);
+  const [tickerLoading, setTickerLoading] = useState(false);
 
   const router = useRouter();
+  const tickerPreviewItems = buildTickerLoopItems(tickerSettings.items);
 
   const handleAuthError = (status: number) => {
     if (status === 401 || status === 403) {
@@ -63,6 +79,7 @@ export default function AdminPage() {
     fetchProducts();
     fetchMusic();
     fetchHeroSettings();
+    fetchTickerSettings();
   }, [router]);
 
   const fetchHeroSettings = async () => {
@@ -76,6 +93,25 @@ export default function AdminPage() {
       console.error('Error fetching hero settings:', err);
     } finally {
       setHeroLoading(false);
+    }
+  };
+
+  const fetchTickerSettings = async () => {
+    try {
+      setTickerLoading(true);
+      const token = getAuthToken();
+      if (!token) return;
+
+      const response = await adminApi.getTickerSettings(token);
+      if (handleAuthError(response.status)) return;
+
+      if (response.success) {
+        setTickerSettings({ items: response.data?.items || [] });
+      }
+    } catch (err) {
+      console.error("Error fetching ticker settings:", err);
+    } finally {
+      setTickerLoading(false);
     }
   };
 
@@ -235,6 +271,54 @@ export default function AdminPage() {
     }
   };
 
+  const addTickerItem = () => {
+    const value = tickerInput.trim();
+    if (!value || tickerSettings.items.includes(value)) return;
+
+    setTickerSettings((prev) => ({
+      items: [...prev.items, value]
+    }));
+    setTickerInput("");
+  };
+
+  const updateTickerItem = (index: number, value: string) => {
+    setTickerSettings((prev) => ({
+      items: prev.items.map((item, itemIndex) => itemIndex === index ? value : item)
+    }));
+  };
+
+  const removeTickerItem = (index: number) => {
+    setTickerSettings((prev) => ({
+      items: prev.items.filter((_, itemIndex) => itemIndex !== index)
+    }));
+  };
+
+  const handleTickerSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTickerSubmitting(true);
+
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+
+      const cleanedItems = tickerSettings.items.map((item) => item.trim()).filter(Boolean);
+      const response = await adminApi.updateTickerSettings(token, cleanedItems);
+      if (handleAuthError(response.status)) return;
+
+      if (response.success) {
+        setTickerSettings({ items: cleanedItems });
+        setTickerInput("");
+      } else {
+        setError(response.message || "Failed to update ticker");
+      }
+    } catch (err) {
+      console.error("Error updating ticker:", err);
+      setError("Error updating ticker");
+    } finally {
+      setTickerSubmitting(false);
+    }
+  };
+
   const handleLogout = () => {
     removeAuthToken();
     router.push("/admin/login");
@@ -250,7 +334,6 @@ export default function AdminPage() {
 
       const formDataObj = new FormData();
       formDataObj.append("productName", formData.productName);
-      formDataObj.append("price", formData.price);
       formDataObj.append("description", formData.description);
       formDataObj.append("colors", JSON.stringify(formData.colors));
       formDataObj.append("type", formData.type);
@@ -289,7 +372,6 @@ export default function AdminPage() {
     setEditingProduct(product);
     setFormData({
       productName: product.productName,
-      price: product.price.toString(),
       description: product.description,
       colors: Array.isArray(product.color) ? product.color : [product.color],
       type: product.type,
@@ -338,8 +420,7 @@ export default function AdminPage() {
   const resetForm = () => {
     setFormData({
       productName: "",
-      price: "",
-      description: "",
+        description: "",
       colors: [],
       type: "car",
       discountPercentage: "0",
@@ -412,7 +493,6 @@ export default function AdminPage() {
 
         {activeTab === "products" && (
           <>
-            {/* Add/Edit Product Form */}
             {showAddForm && (
               <div className="bg-gray-900 p-6 rounded-lg mb-8">
                 <h2 className="text-xl font-bold mb-4">
@@ -427,17 +507,6 @@ export default function AdminPage() {
                         required
                         value={formData.productName}
                         onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
-                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Price</label>
-                      <input
-                        type="number"
-                        required
-                        step="0.01"
-                        value={formData.price}
-                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                         className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
                       />
                     </div>
@@ -472,7 +541,7 @@ export default function AdminPage() {
                               onClick={() => removeColor(color)}
                               className="text-red-400 hover:text-red-300"
                             >
-                              ×
+                              x
                             </button>
                           </span>
                         ))}
@@ -483,7 +552,7 @@ export default function AdminPage() {
                       <select
                         required
                         value={formData.type}
-                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value as ProductType })}
                         className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
                       >
                         <option value="car">Car</option>
@@ -541,7 +610,6 @@ export default function AdminPage() {
                         setEditingProduct(null);
                         setFormData({
                           productName: "",
-                          price: "",
                           description: "",
                           colors: [],
                           type: "car",
@@ -569,18 +637,13 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {/* Products List */}
             <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
-              {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-800">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                         Product
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        Price
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                         Type
@@ -618,16 +681,6 @@ export default function AdminPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-white">
-                            ₹{product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
-                          </div>
-                          {product.discountPercentage > 0 && (
-                            <div className="text-xs text-gray-500 line-through">
-                              ₹{product.price.toFixed(2)}
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-primary/10 text-primary border border-primary/20">
                             {product.type.toUpperCase()}
                           </span>
@@ -659,7 +712,6 @@ export default function AdminPage() {
                 </table>
               </div>
 
-              {/* Mobile Card View */}
               <div className="md:hidden divide-y divide-gray-800">
                 {products.map((product) => (
                   <div key={product._id} className="p-4 space-y-4">
@@ -678,16 +730,6 @@ export default function AdminPage() {
                         <p className="text-xs text-gray-400 truncate">
                           {Array.isArray(product.color) ? product.color.join(", ") : product.color}
                         </p>
-                        <div className="mt-1 flex items-center gap-2">
-                          <span className="text-sm font-bold text-primary">
-                            ₹{product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
-                          </span>
-                          {product.discountPercentage > 0 && (
-                            <span className="text-xs text-gray-500 line-through">
-                              ₹{product.price.toFixed(2)}
-                            </span>
-                          )}
-                        </div>
                       </div>
                       <div className="flex-shrink-0">
                         <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-primary/10 text-primary border border-primary/20">
@@ -926,6 +968,129 @@ export default function AdminPage() {
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                <div>
+                  <h2 className="text-xl font-bold">Moving Ticker Management</h2>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Edit the scrolling strip shown right below the hero section.
+                  </p>
+                </div>
+                <div className="text-xs uppercase tracking-[0.3em] text-primary font-bold">
+                  TV Style Motion
+                </div>
+              </div>
+
+              <div className="rounded-lg overflow-hidden border border-white/10 bg-black mb-6">
+                <div className="bg-primary py-3 overflow-hidden">
+                  <div className="ticker-preview-shell overflow-hidden px-4">
+                    <div className="ticker-preview-track">
+                      {[0, 1].map((group) => (
+                        <div
+                          key={group}
+                          className="ticker-preview-group flex w-max shrink-0 items-center gap-8 whitespace-nowrap text-sm sm:text-base font-black italic tracking-tight text-black"
+                        >
+                          {tickerPreviewItems.map((item, index) => (
+                            <span key={`preview-${group}-${item}-${index}`}>{`/// ${item}`}</span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <form onSubmit={handleTickerSave} className="space-y-5">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    value={tickerInput}
+                    onChange={(e) => setTickerInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addTickerItem();
+                      }
+                    }}
+                    className="flex-1 p-3 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                    placeholder="Add a new ticker line, for example: FREE RETURNS IN 7 DAYS"
+                  />
+                  <button
+                    type="button"
+                    onClick={addTickerItem}
+                    className="bg-primary text-black px-5 py-3 rounded-lg font-bold hover:bg-primary/80"
+                  >
+                    Add Line
+                  </button>
+                </div>
+
+                {tickerLoading ? (
+                  <div className="text-sm text-gray-500">Loading ticker items...</div>
+                ) : (
+                  <div className="space-y-3">
+                    {tickerSettings.items.map((item, index) => (
+                      <div key={`${index}-${item}`} className="flex flex-col sm:flex-row gap-3">
+                        <input
+                          type="text"
+                          value={item}
+                          onChange={(e) => updateTickerItem(index, e.target.value)}
+                          className="flex-1 p-3 bg-gray-800 rounded border border-gray-700 focus:border-primary focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeTickerItem(index)}
+                          className="bg-red-900/20 text-red-400 px-4 py-3 rounded-lg font-bold border border-red-900/40 hover:bg-red-900/30"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
+
+                    {tickerSettings.items.length === 0 && (
+                      <div className="text-sm text-gray-500 border border-dashed border-gray-700 rounded-lg p-4">
+                        No ticker items added yet.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={tickerSubmitting || tickerSettings.items.length === 0}
+                  className="w-full sm:w-auto bg-primary text-black px-8 py-3 rounded-lg font-black uppercase tracking-wider disabled:opacity-50"
+                >
+                  {tickerSubmitting ? "Saving..." : "Save Ticker"}
+                </button>
+              </form>
+
+              <style jsx>{`
+                .ticker-preview-shell {
+                  min-height: 1.5rem;
+                }
+
+                .ticker-preview-track {
+                  display: flex;
+                  width: max-content;
+                  animation: ticker-preview-scroll 28s linear infinite;
+                  will-change: transform;
+                }
+
+                .ticker-preview-group {
+                  padding-right: 2rem;
+                  will-change: transform;
+                }
+
+                @keyframes ticker-preview-scroll {
+                  from {
+                    transform: translate3d(0, 0, 0);
+                  }
+                  to {
+                    transform: translate3d(-50%, 0, 0);
+                  }
+                }
+              `}</style>
             </div>
           </div>
         )}

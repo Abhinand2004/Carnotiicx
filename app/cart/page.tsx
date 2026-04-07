@@ -19,7 +19,7 @@ export default function CartPage() {
 }
 
 function CartContent() {
-    const { cart, removeItem, cartTotal, clearCart } = useCart();
+    const { cart, removeItem, cartCount, clearCart } = useCart();
 
     return (
         <div className="bg-surface-darker min-h-screen flex flex-col">
@@ -40,7 +40,6 @@ function CartContent() {
 
                 {cart.length > 0 ? (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                        {/* Cart Items */}
                         <div className="lg:col-span-8 space-y-6">
                             {cart.map((item: any) => (
                                 <div
@@ -77,16 +76,12 @@ function CartContent() {
                                             <div className="flex items-center gap-4 bg-black/20 rounded-lg border border-white/5 p-1">
                                                 <span className="px-3 text-xs font-bold text-gray-500 uppercase tracking-tighter">Qty: {item.quantity}</span>
                                             </div>
-                                            <p className="text-xl font-black text-primary italic">
-                                                ₹{(item.price * item.quantity).toFixed(2)}
-                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Summary */}
                         <div className="lg:col-span-4">
                             <div className="bg-surface-dark p-6 rounded-xl border border-white/5 sticky top-24">
                                 <h2 className="text-xl font-bold uppercase tracking-tight mb-6 flex items-center gap-2">
@@ -96,31 +91,42 @@ function CartContent() {
 
                                 <div className="space-y-4 mb-6">
                                     <div className="flex justify-between text-gray-400 font-medium">
-                                        <span>Subtotal</span>
-                                        <span className="text-white">₹{cartTotal.toFixed(2)}</span>
+                                        <span>Items</span>
+                                        <span className="text-white">{cartCount}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-400 font-medium">
                                         <span>Shipping</span>
                                         <span className="text-green-500 font-bold uppercase text-xs tracking-widest">Calculated at WhatsApp</span>
                                     </div>
                                     <div className="flex justify-between text-gray-400 font-medium">
-                                        <span>Tax</span>
-                                        <span className="text-white">₹0.00</span>
+                                        <span>Status</span>
+                                        <span className="text-white">Awaiting confirmation</span>
                                     </div>
                                 </div>
 
                                 <div className="border-t border-white/10 pt-4 mb-8">
-                                    <div className="flex justify-between items-end">
-                                        <span className="font-bold uppercase tracking-widest text-sm text-gray-300">Total</span>
-                                        <span className="text-3xl font-black text-white italic">₹{cartTotal.toFixed(2)}</span>
+                                    <div className="flex justify-between items-end gap-4">
+                                        <span className="font-bold uppercase tracking-widest text-sm text-gray-300">Order Mode</span>
+                                        <span className="text-xl font-black text-white italic text-right">WhatsApp Request</span>
                                     </div>
                                 </div>
 
                                 <button
                                     onClick={() => {
                                         const phoneNumber = "918848565513";
-                                        const cartDetails = cart.map((item: any) => `- ${item.name} (${item.size}) x${item.quantity}`).join("%0A");
-                                        const message = `*Order Request from Carnottix*%0A%0A*Items:*%0A${cartDetails}%0A%0A*Total:* ₹${cartTotal.toFixed(2)}`;
+                                        const cartDetails = cart
+                                            .map((item: any) => `• ${item.name} | Size: ${item.size} | Qty: ${item.quantity}`)
+                                            .join("%0A");
+                                        const message = [
+                                            "👕 *Carnottix — Custom Order Request*",
+                                            "",
+                                            "I'd like to place an order for the items below.",
+                                            "",
+                                            "*Order Details:*",
+                                            cartDetails,
+                                            "",
+                                            "Please confirm availability and next steps."
+                                        ].join("%0A");
                                         window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
                                     }}
                                     className="w-full py-4 bg-primary hover:bg-red-600 text-white font-black uppercase tracking-widest rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-3"
@@ -130,7 +136,7 @@ function CartContent() {
                                 </button>
 
                                 <p className="text-[10px] text-gray-500 text-center mt-4 font-bold uppercase tracking-widest leading-relaxed">
-                                    Shipping and taxes will be confirmed by our team on WhatsApp.
+                                    Shipping and final confirmation will be shared by our team on WhatsApp.
                                 </p>
                             </div>
                         </div>

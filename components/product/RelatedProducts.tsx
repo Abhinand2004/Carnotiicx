@@ -14,7 +14,6 @@ export default function RelatedProducts({ type, currentId }: { type: string; cur
                 setLoading(true);
                 const response = await api.getProductsByType(type);
                 if (response.success) {
-                    // Filter out the current product from related products
                     const filtered = response.data.filter(p => p._id !== currentId).slice(0, 4);
                     setProducts(filtered);
                 }
@@ -44,7 +43,6 @@ export default function RelatedProducts({ type, currentId }: { type: string; cur
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {products.map((product) => {
-                    const price = `₹${product.price.toFixed(2)}`;
                     const image = Array.isArray(product.productImage) ? product.productImage[0] : product.productImage;
 
                     return (
@@ -68,14 +66,9 @@ export default function RelatedProducts({ type, currentId }: { type: string; cur
                             <h4 className="font-bold text-sm uppercase tracking-wide mb-1 group-hover:text-primary transition-colors truncate">
                                 {product.productName}
                             </h4>
-                            <div className="flex items-center gap-2">
-                                <p className="text-primary font-bold text-sm">
-                                    ₹{(product.discountPercentage > 0 ? product.price * (1 - product.discountPercentage / 100) : product.price).toFixed(2)}
-                                </p>
-                                {product.discountPercentage > 0 && (
-                                    <p className="text-gray-500 text-xs line-through">{price}</p>
-                                )}
-                            </div>
+                            <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
+                                {product.type}
+                            </p>
                         </Link>
                     );
                 })}

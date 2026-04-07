@@ -8,8 +8,6 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url);
 
         const type = searchParams.get('type');
-        const minPrice = searchParams.get('minPrice');
-        const maxPrice = searchParams.get('maxPrice');
         const sortBy = searchParams.get('sortBy');
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '9');
@@ -23,22 +21,11 @@ export async function GET(req: NextRequest) {
         if (search) {
             filter.productName = { $regex: search, $options: 'i' };
         }
-        if (minPrice || maxPrice) {
-            filter.price = {};
-            if (minPrice) filter.price.$gte = parseFloat(minPrice);
-            if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
-        }
 
         // Build sort object
         let sort: any = { createdAt: -1 };
         if (sortBy) {
             switch (sortBy) {
-                case 'price-low':
-                    sort = { price: 1 };
-                    break;
-                case 'price-high':
-                    sort = { price: -1 };
-                    break;
                 case 'newest':
                     sort = { createdAt: -1 };
                     break;
